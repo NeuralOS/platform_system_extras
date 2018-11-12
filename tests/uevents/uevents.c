@@ -16,6 +16,7 @@
 
 #include <cutils/uevent.h>
 #include <stdio.h>
+#include <time.h>
 
 #define UEVENT_MSG_LEN  1024
 
@@ -25,12 +26,18 @@ int main(int argc, char *argv[])
     char msg[UEVENT_MSG_LEN+2];
     int n;
     int i;
+    char buff[20];
+    struct tm *sTm;
 
     device_fd = uevent_open_socket(64*1024, true);
     if(device_fd < 0)
         return -1;
 
     while ((n = uevent_kernel_multicast_recv(device_fd, msg, UEVENT_MSG_LEN)) > 0) {
+        time_t now = time (0);
+        sTm = gmtime (&now);
+        strftime (buff, sizeof(buff), "%Y-%m-%d %H:%M:%S", sTm);
+        printf ("%s %s\n", buff, "Event occurred now");
         msg[n] = '\0';
         msg[n+1] = '\0';
 
